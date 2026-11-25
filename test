@@ -1,0 +1,15 @@
+注释与 docstring	P1	汪泽南		删除实验叙述	vllm_gr/v1/worker/npu_model_runner_inputs.py:525–532	"原文：提前准备元数据的注释包含 post-forward host stall in profiling bw128_1k_t3。
+问题：某次 profile 的阶段停顿被留在常驻注释中，缺少版本与环境，外部读者无法判断是否仍存在。
+范围：保留准备时机、refresh_metadata 已完成及无元数据时不缓存的条件，仅删实验叙述。"	删除实验括号。	prepare 阶段提前准备元数据、refresh_metadata 已完成、尚无元数据时不缓存。
+注释与 docstring	P1	汪泽南		删除内部编号	vllm_gr/v1/worker/npu_model_runner_patch.py:286	"原文：sampler 短路条件中出现 output (P1-1 scope)。
+问题：P1-1 是无公开上下文的任务编号，读者无法据此判断功能边界；真正需要说明的是何种路径仍要求完整 sampler 输出。
+范围：只删内部编号，不删短路条件。"	改为 output;	前端决策路径仍需完整 sampler 输出的条件说明。
+注释与 docstring	P1	汪泽南		删除实施备注	"vllm_gr/v1/worker/npu_model_runner_patch.py:1144
+_select_bsnd_spec() 上方"	"原文：Read actual packed row order; do not modify latest stage/decode hooks.
+问题：do not modify latest…像某次实施任务的提醒，latest 也没有固定参照，不是函数长期契约；下方已说明输入行序。
+范围：删除这行实施备注，保留实际行序约束及 hook 行为。"	删除这一行，下方已有行序说明。	实际行序逻辑及下方约束说明。
+注释与 docstring	P1	汪泽南		改写设计约束	vllm_gr/v1/worker/npu_model_runner_patch.py:1162–1163	"原文：行序注释引用 the failure log contains 0,2,1,3。
+问题：依赖未提供的历史故障日志，不能直接解释为何不能按 scheduler 字典顺序读取输入。
+实际：应明确 packed inputs 按 input-batch 行序排列，而非字典插入顺序。"	"建议两行注释：
+Packed model inputs follow input-batch row order,
+not scheduler dictionary insertion order."	InputBatch 行序约束。
