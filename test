@@ -13,3 +13,10 @@ _select_bsnd_spec() 上方"	"原文：Read actual packed row order; do not modif
 实际：应明确 packed inputs 按 input-batch 行序排列，而非字典插入顺序。"	"建议两行注释：
 Packed model inputs follow input-batch row order,
 not scheduler dictionary insertion order."	InputBatch 行序约束。
+
+47	安装与资源脚本	P0	汪泽南		先复现再单独评审	tools/install_xllm_ops.sh:53	"现状：probe_xllm_ops 发现包位置或共享库文件后，在未找到相应wrapper的分支可直接返回成功，并提示 already installed。
+风险：文件存在不等于 custom_ops_lib 能导入、所需入口可调用，可能过早跳过安装/修复，到推理时才暴露缺失。
+证据：宽松成功分支已确认；尚未在配套Ascend环境构造坏库复现。"	文件发现只用于诊断；成功判据应是实际运行绑定可导入且必需入口可用。明确 custom_ops_lib 契约，复核对 vllm_ascend.ops.xllm_ops 的探测是否仍适用，去除仅因发现文件便成功的兜底	不混入文案清理，不以文件存在或命令成功代替运行契约验证。	无库、只有文件但导入失败、接口缺失、完整安装、重复调用，以及 Ascend 实际加载。
+48	安装与资源脚本	P0	汪泽南		先复现再单独评审	vllm_gr/ops/npu/_xllm_loader.py:28	"现状：load_xllm_ops 用 hasattr(torch.ops, xllm_ops) 为真就提前返回。
+疑点：torch.ops 可动态创建命名空间，存在该名称不代表实际算子已注册；CPU Torch 2.13.0 探针曾出现未注册但hasattr为真、预加载未调用。
+限制：配套Ascend Torch待验证，后续仍会导入custom_ops_lib并检查入口；不能将此疑点写成NPU算子已不可用。"	不把动态命名空间存在当成完成加载。先在配套 Torch 验证真实绑定与加载需求，再改为实际入口检查；保留可选扩展缺失时约定的回退。是否删除 cpp_extension.load 路径另行验证	不混入文案清理，不以文件存在或命令成功代替运行契约验证。	配套 Torch 验证真实绑定和加载需求；覆盖缺库、接口缺失、完整安装及重复调用。CPU 探针不证明现有 NPU 环境不可用。
